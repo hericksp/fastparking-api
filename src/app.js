@@ -1,9 +1,9 @@
-require ("./database");
 const express = require("express");
-const routes = express();
-
-app.use(routes);
+require ("./database");
+const routes = require("./routes");
 
 const app = express();
+
+app.use(routes);
 
 module.exports = app;
