@@ -1,9 +1,11 @@
-const User = require("../models/user");
-const bcrypt = require("bcryptjs")
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const auth = require("../config/auth");
 
 module.exports = {
-    store(req, res){
-        const { name, email, password } = req.body;
+    async store(req, res){
+        const { name, email, senha } = req.body;
 
         //Verifica se o usuário já existe
         let user = await User.findOne({
@@ -17,16 +19,21 @@ module.exports = {
         }
 
         //Gerar hash da senha
-        const passworHashed = bcrypt.hashSync(password);
+        const senhaHashed = bcrypt.hashSync(senha);
 
         //inserir o usuário no banco
         user = await User.create({
             name: name,
             email: email,
-            password: passworHashed
+            senha: senhaHashed
         })
 
         //Gerar token
+        const token = jwt.sign({ UserId: user.id}, auth.secret, {
+            expiresIn: "1h"
+        });
+
+
 
         //Retornar o usuário
         res.send({
@@ -34,8 +41,8 @@ module.exports = {
                 id: user.id,
                 name: user.name,
                 email: user.email
-                
-            }
+                },
+            token
         });
 
     }
